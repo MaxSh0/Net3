@@ -1,0 +1,10 @@
+C:\Users\mshak_000\Desktop\Net3\Net3\bin\Debug\Net3.exe.config
+C:\Users\mshak_000\Desktop\Net3\Net3\bin\Debug\Net3.exe
+C:\Users\mshak_000\Desktop\Net3\Net3\bin\Debug\Net3.pdb
+C:\Users\mshak_000\Desktop\Net3\Net3\obj\Debug\Net3.csprojResolveAssemblyReference.cache
+C:\Users\mshak_000\Desktop\Net3\Net3\obj\Debug\Net3.Form1.resources
+C:\Users\mshak_000\Desktop\Net3\Net3\obj\Debug\Net3.Properties.Resources.resources
+C:\Users\mshak_000\Desktop\Net3\Net3\obj\Debug\Net3.csproj.GenerateResource.Cache
+C:\Users\mshak_000\Desktop\Net3\Net3\obj\Debug\Net3.csproj.CoreCompileInputs.cache
+C:\Users\mshak_000\Desktop\Net3\Net3\obj\Debug\Net3.exe
+C:\Users\mshak_000\Desktop\Net3\Net3\obj\Debug\Net3.pdb
