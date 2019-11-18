@@ -14,6 +14,9 @@ namespace Net3
 {
     public partial class Form1 : Form
     {
+        public static Bitmap image;
+        public static string full_name_of_image = "\0";
+        public static UInt32[,] pixel;
         //
         //
         //HABR
@@ -136,6 +139,10 @@ namespace Net3
 
         private void button1_Click(object sender, EventArgs e)
         {
+            pictureBox1.Image = null;
+            pictureBox2.Image = null;
+            pictureBox3.Image = null;
+
             if (radioButton1.Checked)
             {
                 
@@ -162,6 +169,7 @@ namespace Net3
                     return;
                 }
                 Bitmap bPic = new Bitmap(rFile);
+                Bitmap FirstPic = new Bitmap(rFile);
 
                 pictureBox1.SizeMode = PictureBoxSizeMode.StretchImage;//растягивает изображение на PictureBox
                 pictureBox1.Image = bPic;//устанавливает изображение в форму
@@ -318,6 +326,70 @@ namespace Net3
 
                 bPic.Save(wFile, System.Drawing.Imaging.ImageFormat.Bmp);
                 wFile.Close(); //закрываем поток
+                for (int i = 0; i < FirstPic.Width; i++)
+                {
+                    for (int j = 0; j < FirstPic.Height; j++)
+                    {
+                        Color newColor;
+                        Color pixelColor = bPic.GetPixel(i, j);
+                        Color pixelColor2 = FirstPic.GetPixel(i, j);
+                        BitArray colorArray = ByteToBit(pixelColor.R);
+                        BitArray colorArray2 = ByteToBit(pixelColor2.R);
+                        BitArray colorArray3 = ByteToBit(pixelColor.B);
+                        BitArray colorArray4 = ByteToBit(pixelColor2.B);
+                        BitArray colorArray5 = ByteToBit(pixelColor.G);
+                        BitArray colorArray6 = ByteToBit(pixelColor2.G);
+                        if (colorArray[0] != colorArray2[0] || colorArray[1] != colorArray2[1] || colorArray[2] != colorArray2[2])
+                        {
+                            newColor = Color.White;
+                        }
+                        else if (colorArray3[0] != colorArray4[0] || colorArray3[1] != colorArray4[1] || colorArray3[2] != colorArray4[2])
+                        {
+                            newColor = Color.Violet;
+                        }
+                        else if (colorArray5[0] != colorArray6[0] || colorArray5[1] != colorArray6[1] || colorArray5[2] != colorArray6[2])
+                        {
+                            newColor = Color.Red;
+                        }
+                        else
+                        {
+                            newColor = Color.FromArgb(pixelColor.ToArgb() - pixelColor2.ToArgb());
+                        }
+                        bPic.SetPixel(i, j, newColor);
+                        index++;
+                    }
+                }
+                pictureBox3.Image = bPic;
+
+                if (checkBox2.Checked)
+                {
+                    
+                    if (saveFileDialogIMG.ShowDialog() == DialogResult.OK)
+                    {
+                        sFilePic = saveFileDialogIMG.FileName;
+                    }
+                    else
+                    {
+                        sFilePic = "";
+                        return;
+                    };
+
+                    FileStream sFile;
+                    try
+                    {
+                        sFile = new FileStream(sFilePic, FileMode.Create); //открываем поток на запись результатов
+                    }
+                    catch (IOException)
+                    {
+                        MessageBox.Show("Ошибка открытия файла на запись", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }
+
+                    bPic.Save(sFile, System.Drawing.Imaging.ImageFormat.Bmp);
+                    sFile.Close(); //закрываем поток
+                }
+                
+               
             }
             else if(radioButton2.Checked)
             {
@@ -419,6 +491,9 @@ namespace Net3
                     wText.Close();
                     wFile.Close(); //закрываем поток
                 }
+
+
+
             }
         }
 
@@ -438,13 +513,139 @@ namespace Net3
             {
                 button1.Text = "Зашифровать";
                 checkBox1.Visible = false;
+                checkBox2.Visible = true;
             }
             else if (radioButton2.Checked)
             {
                 button1.Text = "Расшифровать";
                 checkBox1.Visible = true;
+                checkBox2.Visible = false;
             }
         }
 
+        private void button2_Click(object sender, EventArgs e)
+        {
+            //Для изменения яркости на N процентов используется следующая формула:
+            //I = I + N • 128 / 100
+
+                string FilePic;
+                if (openFileDialogIMG.ShowDialog() == DialogResult.OK)
+                {
+                    FilePic = openFileDialogIMG.FileName;
+                }
+                else
+                {
+                    FilePic = "";
+                    return;
+                }
+
+                FileStream rFile;
+                try
+                {
+                    rFile = new FileStream(FilePic, FileMode.Open); //открываем поток
+                }
+                catch (IOException)
+                {
+                    MessageBox.Show("Ошибка открытия файла", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+                image = new Bitmap(rFile);
+                Bitmap imageOriginal = new Bitmap(rFile);
+            pictureBox1.SizeMode = PictureBoxSizeMode.StretchImage;
+            pictureBox1.Image = imageOriginal;
+            pixel = new UInt32[image.Height, image.Width];
+            for (int y = 0; y < image.Height; y++)
+            {
+                for (int x = 0; x < image.Width; x++)
+                {
+                    pixel[y, x] = (UInt32)(image.GetPixel(x, y).ToArgb());
+                }
+            }
+
+            UInt32 p;
+            for (int i = 0; i < image.Height; i++)
+            {
+                for (int j = 0; j < image.Width; j++)
+                {
+                    p = Brightness(pixel[i, j], 5, 10);
+                    FromOnePixelToBitmap(i, j, p);
+                }
+            }
+            pictureBox2.SizeMode = PictureBoxSizeMode.StretchImage;
+            pictureBox2.Image = image;
+
+
+
+
+            String sFilePic;
+            if (saveFileDialogIMG.ShowDialog() == DialogResult.OK)
+            {
+                sFilePic = saveFileDialogIMG.FileName;
+            }
+            else
+            {
+                sFilePic = "";
+                return;
+            };
+
+
+            FileStream wFile;
+            try
+            {
+                wFile = new FileStream(sFilePic, FileMode.Create); //открываем поток на запись результатов
+            }
+            catch (IOException)
+            {
+                MessageBox.Show("Ошибка открытия файла на запись", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            image.Save(wFile, System.Drawing.Imaging.ImageFormat.Bmp);
+            wFile.Close(); //закрываем поток
+        }
+
+        public static void FromOnePixelToBitmap(int x, int y, UInt32 pixel)
+        {
+            image.SetPixel(y, x, Color.FromArgb((int)pixel));
+        }
+
+
+        public UInt32 Brightness(UInt32 point, int poz, int lenght)
+        {
+            int R;
+            int G;
+            int B;
+
+            int N = (100 / lenght) * poz; //кол-во процентов
+
+            R = (int)(((point & 0x00FF0000) >> 16) + N * 128 / 100);
+            G = (int)(((point & 0x0000FF00) >> 8) + N * 128 / 100);
+            B = (int)((point & 0x000000FF) + N * 128 / 100);
+
+            //контролируем переполнение переменных
+            if (R < 0) R = 0;
+            if (R > 255) R = 255;
+            if (G < 0) G = 0;
+            if (G > 255) G = 255;
+            if (B < 0) B = 0;
+            if (B > 255) B = 255;
+
+            point = 0xFF000000 | ((UInt32)R << 16) | ((UInt32)G << 8) | ((UInt32)B);
+
+            return point;
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            pictureBox1.Image = null;
+            pictureBox2.Image = null;
+            pictureBox3.Image = null;
+        }
     }
 }
+
+
+
+
+
+
